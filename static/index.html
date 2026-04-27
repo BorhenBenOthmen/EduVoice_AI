@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ara | True Live Voice</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --text-color: #f8fafc;
+            --primary: #10b981;
+            --danger: #ef4444;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --listening: #3b82f6;
+            --interrupting: #f59e0b;
+        }
+        
+        body {
+            margin: 0; padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-color); color: var(--text-color);
+            display: flex; flex-direction: column; height: 100vh;
+            justify-content: center; align-items: center;
+        }
+
+        .container {
+            width: 100%; max-width: 500px;
+            background: var(--card-bg); border: 1px solid var(--border);
+            border-radius: 16px; padding: 2.5rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; align-items: center; gap: 2rem;
+            text-align: center;
+        }
+
+        .status { font-size: 0.875rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+
+        .visualizer {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: var(--border); display: flex;
+            justify-content: center; align-items: center;
+            transition: all 0.3s ease; position: relative;
+        }
+
+        .visualizer.listening {
+            background: var(--listening);
+            animation: pulse-blue 2s infinite;
+        }
+
+        .visualizer.speaking {
+            background: var(--primary);
+            animation: pulse-green 1.5s infinite;
+        }
+
+        .visualizer.interrupting {
+            background: var(--interrupting);
+            animation: pulse-amber 0.5s ease-out;
+        }
+
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(16, 185, 129, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        @keyframes pulse-blue {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(59, 130, 246, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        @keyframes pulse-amber {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 25px rgba(245, 158, 11, 0); }
+        }
+
+        .btn {
+            background-color: var(--primary); color: white;
+            border: none; padding: 1rem 2.5rem; border-radius: 9999px;
+            font-size: 1.125rem; font-weight: 600; cursor: pointer;
+            transition: all 0.2s; width: 100%;
+        }
+
+        .btn:hover { filter: brightness(1.1); }
+        .btn.stop { background-color: var(--danger); }
+
+        .form-group {
+            width: 100%; text-align: left; margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block; font-size: 0.875rem; color: #94a3b8; margin-bottom: 0.5rem;
+        }
+        .form-control {
+            width: 100%; padding: 0.75rem; border-radius: 8px;
+            background: #0f172a; border: 1px solid var(--border); color: white;
+            font-size: 1rem; margin-bottom: 0.5rem; box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1 style="margin:0;">Ara Live</h1>
+        <div class="status" id="status-text">System Offline</div>
+        
+        <div class="visualizer" id="visualizer">
+            <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+        </div>
+
+        <div id="student-form" style="width: 100%;">
+            <div class="form-group">
+                <label>Student Name</label>
+                <input type="text" id="input-name" class="form-control" value="Ali">
+            </div>
+            <div class="form-group">
+                <label>Grade Level</label>
+                <select id="input-grade" class="form-control">
+                    <option value="primary_4">Primary 4</option>
+                    <option value="primary_5">Primary 5</option>
+                    <option value="primary_6">Primary 6</option>
+                    <option value="middle_7">Middle 7</option>
+                    <option value="middle_8">Middle 8</option>
+                    <option value="middle_9">Middle 9</option>
+                    <option value="secondary_bac_lit">Bac Lettres</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Primary Language</label>
+                <select id="input-lang" class="form-control">
+                    <option value="Arabic">Arabic</option>
+                    <option value="French">French</option>
+                    <option value="English">English</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="btn" id="connect-btn">Connect to Ara</button>
+    </div>
+
+    <script>
+        // =====================================================================
+        // AudioPlaybackEngine — Cancellable sequential audio chunk playback
+        // =====================================================================
+        // Unlike scheduling multiple AudioBufferSourceNodes into the future
+        // (which cannot be cancelled), this engine plays chunks one-at-a-time
+        // and maintains a queue that can be flushed instantly on barge-in.
+        // =====================================================================
+        class AudioPlaybackEngine {
+            constructor(sampleRate = 24000) {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate });
+                this.queue = [];              // Pending Float32Array chunks
+                this.isPlaying = false;
+                this.currentSource = null;    // Currently playing AudioBufferSourceNode
+                this.currentGenId = 0;        // Active generation ID
+                this.onStateChange = null;    // Callback: (isPlaying) => void
+            }
+
+            /**
+             * Add a PCM chunk to the playback queue.
+             * Chunks from stale generations (after an interrupt) are silently discarded.
+             */
+            enqueue(pcmInt16Array, generationId) {
+                // Discard audio from a cancelled/older generation
+                if (generationId < this.currentGenId) return;
+
+                // New generation — could be first chunk after an interrupt response
+                if (generationId > this.currentGenId) {
+                    this.currentGenId = generationId;
+                }
+
+                // Convert Int16 PCM to Float32 for Web Audio API
+                const float32 = new Float32Array(pcmInt16Array.length);
+                for (let i = 0; i < pcmInt16Array.length; i++) {
+                    float32[i] = pcmInt16Array[i] / 32768.0;
+                }
+
+                this.queue.push(float32);
+
+                // Start playback chain if not already running
+                if (!this.isPlaying) {
+                    this._playNext();
+                }
+            }
+
+            /**
+             * BARGE-IN: Immediately stop all audio and discard pending chunks.
+             * This is the core of the interruption system.
+             */
+            flush() {
+                // 1. Clear all pending chunks
+                this.queue.length = 0;
+
+                // 2. Stop the currently playing source node immediately
+                if (this.currentSource) {
+                    try {
+                        this.currentSource.onended = null; // Prevent _playNext callback
+                        this.currentSource.stop();
+                    } catch (e) {
+                        // May already be stopped — safe to ignore
+                    }
+                    this.currentSource = null;
+                }
+
+                this.isPlaying = false;
+                console.log('[AudioEngine] Flushed — all playback stopped.');
+            }
+
+            /** Play the next chunk in the queue, or signal idle. */
+            _playNext() {
+                if (this.queue.length === 0) {
+                    this.isPlaying = false;
+                    this.currentSource = null;
+                    if (this.onStateChange) this.onStateChange(false);
+                    return;
+                }
+
+                this.isPlaying = true;
+                if (this.onStateChange) this.onStateChange(true);
+
+                const chunk = this.queue.shift();
+                const buffer = this.ctx.createBuffer(1, chunk.length, this.ctx.sampleRate);
+                buffer.getChannelData(0).set(chunk);
+
+                const source = this.ctx.createBufferSource();
+                source.buffer = buffer;
+                source.connect(this.ctx.destination);
+                source.onended = () => this._playNext();
+                source.start();
+                this.currentSource = source;
+            }
+
+            /** Resume AudioContext if it was suspended by browser autoplay policy. */
+            async resume() {
+                if (this.ctx.state === 'suspended') {
+                    await this.ctx.resume();
+                }
+            }
+
+            /** Clean up all resources. */
+            close() {
+                this.flush();
+                try { this.ctx.close(); } catch (e) { /* ignore */ }
+            }
+        }
+
+        // =====================================================================
+        // State Machine
+        // =====================================================================
+        // IDLE        — Not connected
+        // LISTENING   — Connected, mic streaming, waiting for user or model
+        // SPEAKING    — Model audio is playing through speakers
+        // INTERRUPTING — Barge-in detected, flushing audio (transient, ~0ms)
+        // =====================================================================
+        const STATE = { IDLE: 'idle', LISTENING: 'listening', SPEAKING: 'speaking', INTERRUPTING: 'interrupting' };
+        let currentState = STATE.IDLE;
+
+        const connectBtn = document.getElementById('connect-btn');
+        const visualizer = document.getElementById('visualizer');
+        const statusText = document.getElementById('status-text');
+
+        function setState(newState) {
+            const prev = currentState;
+            currentState = newState;
+
+            // Update visual indicators
+            visualizer.classList.remove('listening', 'speaking', 'interrupting');
+
+            switch (newState) {
+                case STATE.LISTENING:
+                    visualizer.classList.add('listening');
+                    statusText.innerText = 'Listening… speak now';
+                    break;
+                case STATE.SPEAKING:
+                    visualizer.classList.add('speaking');
+                    statusText.innerText = 'Ara is speaking…';
+                    break;
+                case STATE.INTERRUPTING:
+                    visualizer.classList.add('interrupting');
+                    statusText.innerText = 'Interrupted — listening…';
+                    // Transient state: immediately transition to LISTENING
+                    setTimeout(() => {
+                        if (currentState === STATE.INTERRUPTING) setState(STATE.LISTENING);
+                    }, 300);
+                    break;
+                case STATE.IDLE:
+                    statusText.innerText = 'System Offline';
+                    break;
+            }
+
+            if (prev !== newState) {
+                console.log(`[State] ${prev} → ${newState}`);
+            }
+        }
+
+        // =====================================================================
+        // Connection Management
+        // =====================================================================
+        let ws = null;
+        let audioContext = null;     // Mic capture context (16kHz)
+        let mediaStream = null;
+        let scriptProcessor = null;
+        let playbackEngine = null;   // AudioPlaybackEngine instance
+        let isConnected = false;
+
+        async function toggleConnection() {
+            if (isConnected) {
+                disconnect();
+            } else {
+                await connect();
+            }
+        }
+
+        async function connect() {
+            try {
+                statusText.innerText = 'Connecting to API...';
+
+                // 1. Initialize WebSocket with query parameters
+                const name = document.getElementById('input-name').value || 'Student';
+                const grade = document.getElementById('input-grade').value;
+                const lang = document.getElementById('input-lang').value;
+
+                const wsUrl = `ws://${window.location.host}/ws?name=${encodeURIComponent(name)}&grade_level=${encodeURIComponent(grade)}&primary_language=${encodeURIComponent(lang)}`;
+                ws = new WebSocket(wsUrl);
+                ws.binaryType = 'arraybuffer';
+
+                ws.onopen = async () => {
+                    document.getElementById('student-form').style.display = 'none';
+                    connectBtn.innerText = 'Disconnect';
+                    connectBtn.classList.add('stop');
+                    isConnected = true;
+
+                    // =========================================================
+                    // 2. Playback Engine — 24kHz output with barge-in support
+                    // =========================================================
+                    playbackEngine = new AudioPlaybackEngine(24000);
+                    playbackEngine.onStateChange = (isPlaying) => {
+                        // When the playback queue naturally drains, return to LISTENING
+                        if (!isPlaying && currentState === STATE.SPEAKING && isConnected) {
+                            setState(STATE.LISTENING);
+                            console.log('[Ara] Playback finished — ready for next question.');
+                        }
+                    };
+
+                    // =========================================================
+                    // 3. Mic Capture — 16kHz PCM, continuous full-duplex
+                    // echoCancellation prevents Ara's own audio from being
+                    // detected as user speech by Gemini's server-side VAD.
+                    // =========================================================
+                    mediaStream = await navigator.mediaDevices.getUserMedia({
+                        audio: {
+                            sampleRate: 16000,
+                            channelCount: 1,
+                            echoCancellation: true,
+                            noiseSuppression: true,
+                            autoGainControl: true
+                        }
+                    });
+
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+                    if (audioContext.state === 'suspended') await audioContext.resume();
+
+                    const source = audioContext.createMediaStreamSource(mediaStream);
+                    scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+
+                    scriptProcessor.onaudioprocess = (e) => {
+                        if (!isConnected || ws.readyState !== WebSocket.OPEN) return;
+
+                        const inputData = e.inputBuffer.getChannelData(0);
+                        const pcmData = new Int16Array(inputData.length);
+
+                        for (let i = 0; i < inputData.length; i++) {
+                            const s = Math.max(-1, Math.min(1, inputData[i]));
+                            pcmData[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                        }
+
+                        // Always send mic data — even during playback.
+                        // This is CRITICAL for Gemini's VAD to detect barge-in.
+                        ws.send(pcmData.buffer);
+                    };
+
+                    source.connect(scriptProcessor);
+                    scriptProcessor.connect(audioContext.destination);
+
+                    setState(STATE.LISTENING);
+                };
+
+                // =========================================================
+                // 4. Message Handler — Mixed binary/JSON protocol
+                // =========================================================
+                ws.onmessage = async (event) => {
+                    // ---- JSON control messages ----
+                    if (typeof event.data === 'string') {
+                        let msg;
+                        try {
+                            msg = JSON.parse(event.data);
+                        } catch (e) {
+                            console.warn('[WS] Invalid JSON:', event.data);
+                            return;
+                        }
+
+                        if (msg.type === 'interrupt') {
+                            // =================================================
+                            // BARGE-IN: Gemini detected user speech during model
+                            // output. Flush all audio immediately.
+                            // =================================================
+                            console.log(`[Barge-In] Interrupt signal — gen_id=${msg.generation_id}`);
+                            if (playbackEngine) {
+                                playbackEngine.currentGenId = msg.generation_id;
+                                playbackEngine.flush();
+                            }
+                            setState(STATE.INTERRUPTING);
+                        }
+                        else if (msg.type === 'turn_complete') {
+                            console.log(`[Turn] Complete — gen_id=${msg.generation_id}`);
+                            // Playback engine's onStateChange handles the
+                            // SPEAKING → LISTENING transition when queue drains.
+                        }
+                        return;
+                    }
+
+                    // ---- Binary audio data ----
+                    if (event.data instanceof ArrayBuffer) {
+                        if (!playbackEngine) return;
+                        await playbackEngine.resume();
+
+                        // First 4 bytes = generation_id (big-endian uint32)
+                        // Remaining bytes = PCM Int16 audio at 24kHz
+                        const view = new DataView(event.data);
+                        const genId = view.getUint32(0);
+                        const pcmData = new Int16Array(event.data.slice(4));
+
+                        // Enqueue (stale chunks are auto-discarded by the engine)
+                        playbackEngine.enqueue(pcmData, genId);
+
+                        if (currentState === STATE.LISTENING || currentState === STATE.INTERRUPTING) {
+                            setState(STATE.SPEAKING);
+                        }
+                    }
+                };
+
+                ws.onclose = () => { disconnect(); };
+                ws.onerror = (err) => { console.error('WS Error:', err); disconnect(); };
+
+            } catch (err) {
+                console.error('Connection error:', err);
+                statusText.innerText = 'Error connecting to microphone or server.';
+                disconnect();
+            }
+        }
+
+        function disconnect() {
+            if (ws) { ws.close(); ws = null; }
+            if (scriptProcessor) { scriptProcessor.disconnect(); scriptProcessor = null; }
+            if (mediaStream) { mediaStream.getTracks().forEach(track => track.stop()); mediaStream = null; }
+            if (audioContext) { audioContext.close(); audioContext = null; }
+            if (playbackEngine) { playbackEngine.close(); playbackEngine = null; }
+
+            isConnected = false;
+            setState(STATE.IDLE);
+            document.getElementById('student-form').style.display = 'block';
+            connectBtn.innerText = 'Connect to Ara';
+            connectBtn.classList.remove('stop');
+        }
+
+        connectBtn.addEventListener('click', toggleConnection);
+    </script>
+</body>
+</html>
