@@ -59,17 +59,27 @@ GRADE_LABELS = {
 
 # Mapping from Mobile/Django names to internal keys
 WEB_TO_INTERNAL_GRADE_MAP = {
-    "Bac Lettres": "secondary_4_lettres",
+    # English friendly names
     "Primary 4": "primary_4",
     "Primary 5": "primary_5",
     "Primary 6": "primary_6",
+    "Middle 7":  "middle_7",
+    "Middle 8":  "middle_8",
+    "Middle 9":  "middle_9",
+    "Bac Lettres": "secondary_4_lettres",
+    # French labels (from Django/main backend)
     "4ème année primaire": "primary_4",
     "5ème année primaire": "primary_5",
     "6ème année primaire": "primary_6",
+    "7ème année de base":  "middle_7",
+    "8ème année de base":  "middle_8",
+    "9ème année de base":  "middle_9",
     "1ère année secondaire": "secondary_1",
     "2ème année secondaire — Lettres": "secondary_2_lettres",
     "3ème année secondaire — Lettres": "secondary_3_lettres",
     "4ème année secondaire — Bac Lettres": "secondary_4_lettres",
+    # Legacy / deprecated keys (backwards compatibility)
+    "secondary_bac_lit": "secondary_4_lettres",
 }
 
 def build_system_instruction(student: Student, curriculum_context: str = "") -> str:

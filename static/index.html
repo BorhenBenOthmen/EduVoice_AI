@@ -196,13 +196,22 @@
             <div class="form-group">
                 <label>Grade Level</label>
                 <select id="input-grade" class="form-control">
-                    <option value="primary_4">Primary 4</option>
-                    <option value="primary_5">Primary 5</option>
-                    <option value="primary_6">Primary 6</option>
-                    <option value="middle_7">Middle 7</option>
-                    <option value="middle_8">Middle 8</option>
-                    <option value="middle_9">Middle 9</option>
-                    <option value="secondary_bac_lit">Bac Lettres</option>
+                    <optgroup label="Primary">
+                        <option value="primary_4">4ème année primaire</option>
+                        <option value="primary_5">5ème année primaire</option>
+                        <option value="primary_6">6ème année primaire</option>
+                    </optgroup>
+                    <optgroup label="Middle School">
+                        <option value="middle_7">7ème année de base</option>
+                        <option value="middle_8">8ème année de base</option>
+                        <option value="middle_9">9ème année de base</option>
+                    </optgroup>
+                    <optgroup label="Secondary">
+                        <option value="secondary_1">1ère année secondaire</option>
+                        <option value="secondary_2_lettres">2ème année — Lettres</option>
+                        <option value="secondary_3_lettres">3ème année — Lettres</option>
+                        <option value="secondary_4_lettres">Bac Lettres</option>
+                    </optgroup>
                 </select>
             </div>
 
