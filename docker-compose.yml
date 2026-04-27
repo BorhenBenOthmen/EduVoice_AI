@@ -18,7 +18,7 @@ services:
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=8000
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')" ]
       interval: 30s
       timeout: 5s
       start-period: 10s
@@ -27,8 +27,8 @@ services:
     # networks:
     #   - backend-network
 
-# Uncomment to connect to an existing Docker network (e.g. the main backend)
-# networks:
-#   backend-network:
-#     external: true
-#     name: your-main-backend-network-name
+    # Uncomment to connect to an existing Docker network (e.g. the main backend)
+    # networks:
+    #   backend-network:
+    #     external: true
+    #     name: your-main-backend-network-name
