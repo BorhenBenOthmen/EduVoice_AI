@@ -205,14 +205,7 @@
                     <option value="secondary_bac_lit">Bac Lettres</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Primary Language</label>
-                <select id="input-lang" class="form-control">
-                    <option value="Arabic">Arabic</option>
-                    <option value="French">French</option>
-                    <option value="English">English</option>
-                </select>
-            </div>
+
         </div>
 
         <button class="btn" id="connect-btn">Connect to Ara</button>
@@ -398,9 +391,8 @@
                 // 1. Initialize WebSocket with query parameters
                 const name = document.getElementById('input-name').value || 'Student';
                 const grade = document.getElementById('input-grade').value;
-                const lang = document.getElementById('input-lang').value;
 
-                const wsUrl = `ws://${window.location.host}/ws?name=${encodeURIComponent(name)}&grade_level=${encodeURIComponent(grade)}&primary_language=${encodeURIComponent(lang)}`;
+                const wsUrl = `ws://${window.location.host}/ws?name=${encodeURIComponent(name)}&grade_level=${encodeURIComponent(grade)}`;
                 ws = new WebSocket(wsUrl);
                 ws.binaryType = 'arraybuffer';
 

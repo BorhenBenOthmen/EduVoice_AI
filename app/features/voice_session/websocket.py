@@ -34,11 +34,11 @@ async def websocket_endpoint(websocket: WebSocket):
     query_params = websocket.query_params
     student_name = query_params.get("name", "Student")
     grade_level = query_params.get("grade_level", "primary_4")
-    primary_language = query_params.get("primary_language", "Arabic")
+
     course_names_raw = query_params.get("course_names", "")
     course_names = [c.strip() for c in course_names_raw.split(",") if c.strip()] if course_names_raw else []
 
-    student = Student(name=student_name, grade_level=grade_level, primary_language=primary_language, course_names=course_names)
+    student = Student(name=student_name, grade_level=grade_level, course_names=course_names)
     system_instruction_text = build_system_instruction(student)
 
     logger.info(f"WebSocket connection established with {client_ip} for Student: {student.name} ({student.grade_level})")

@@ -57,7 +57,7 @@ The service is designed to be **deployed as a standalone Docker container** and 
 | 🎙️ **Full-Duplex Audio** | Continuous mic streaming + simultaneous AI playback |
 | ⚡ **Barge-In (Interruption)** | Interrupt the AI mid-sentence — Gemini's server-side VAD detects speech and cancels the current response |
 | 🎓 **Grade-Aware Persona** | Adapts tone, vocabulary, and curriculum to the student's educational level |
-| 🌐 **Multilingual** | Supports Arabic, French, and English interactions |
+| 🌐 **Multilingual** | Auto-detects Arabic, French, and English from student speech |
 | 🔄 **API Key Failover** | Automatic fallback to a secondary Gemini API key |
 | 🏥 **Health Check** | Built-in `/health` endpoint for Docker and load balancer probes |
 | 🧪 **Test Client** | Built-in browser-based test UI at `/` |
@@ -251,10 +251,10 @@ Update the WebSocket URL in your Flutter app's `GeminiRoutingService`:
 
 ```dart
 // For Docker network (via reverse proxy)
-final wsUrl = 'ws://your-domain.com/ai/ws?name=$name&grade_level=$grade&primary_language=$lang';
+final wsUrl = 'ws://your-domain.com/ai/ws?name=$name&grade_level=$grade';
 
 // For direct connection
-final wsUrl = 'ws://SERVER_IP:8000/ws?name=$name&grade_level=$grade&primary_language=$lang';
+final wsUrl = 'ws://SERVER_IP:8000/ws?name=$name&grade_level=$grade';
 ```
 
 ---
@@ -287,7 +287,6 @@ Full-duplex audio WebSocket endpoint.
 |---|---|---|---|
 | `name` | string | `"Student"` | Student's name |
 | `grade_level` | string | `"primary_4"` | Student's grade level (see table below) |
-| `primary_language` | string | `"Arabic"` | Preferred language (`Arabic`, `French`, `English`) |
 | `course_names` | string | `""` | Comma-separated list of enrolled courses |
 
 **Protocol:**
