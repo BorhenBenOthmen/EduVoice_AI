@@ -14,6 +14,9 @@ GEMINI_API_KEY_FALLBACK = os.getenv("GEMINI_API_KEY_FALLBACK")
 MODEL_NAME = os.getenv("MODEL_NAME", "gemini-3.1-flash-live-preview")
 MODEL_NAME_FALLBACK = os.getenv("MODEL_NAME_FALLBACK", "gemini-2.5-flash")
 
+# Django backend URL for fetching app content (lessons, podcasts, etc.)
+DJANGO_BACKEND_URL = os.getenv("DJANGO_BACKEND_URL", "https://radio.backend.ecocloud.tn/ai/get_lessons_list")
+
 if not GEMINI_API_KEY or not GEMINI_API_KEY.startswith("AIza"):
     import sys
     print("CRITICAL ERROR: Invalid GEMINI_API_KEY in .env file.")
